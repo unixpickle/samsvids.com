@@ -1,0 +1,8 @@
+html, body {
+    margin: 0;
+}
+
+#box-animation {
+    width: 400px;
+    height: 400px;
+}
