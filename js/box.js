@@ -58,7 +58,7 @@ class BoxPresenter {
     }
 
     static get HEIGHT_RATIO() {
-        return 1.3;
+        return 1;
     }
 
     static get ANIMATE_INIT_Y() {
@@ -66,7 +66,7 @@ class BoxPresenter {
     }
 
     static get ANIMATE_FINAL_Y() {
-        return 0.05;
+        return 0;
     }
 
     static get ANIMATE_Y_START() {
@@ -145,7 +145,7 @@ class BoxRenderer {
         const span = BoxRenderer.BOX_WIDTH + BoxRenderer.SIDE_FLAP_SIZE * 2 +
             BoxRenderer.SIDE_SLACK;
         this.camera.position.z = BoxRenderer.BOX_DEPTH / 2 + span / (2 * Math.tan(horizFov / 2));
-        this.camera.setViewOffset(w, h, 0, h * BoxRenderer.TOP_VIEW_OFFSET, w, h);
+        this.camera.setViewOffset(w, h, 0, w * BoxRenderer.TOP_VIEW_OFFSET, w, h);
 
         this.renderer.setSize(w, h);
     }
@@ -379,7 +379,7 @@ class BoxRenderer {
     }
 
     static get ANIMATE_DROP_TOP() {
-        return 0.3;
+        return -0.3;
     }
 
     static get ANIMATE_DROP_BOTTOM() {
