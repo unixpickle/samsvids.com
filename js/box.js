@@ -144,7 +144,7 @@ class BoxRenderer {
         // into the canvas.
         const span = BoxRenderer.BOX_WIDTH + BoxRenderer.SIDE_FLAP_SIZE * 2 +
             BoxRenderer.SIDE_SLACK;
-        this.camera.position.z = BoxRenderer.BOX_DEPTH / 2 + 2 * Math.tan(horizFov / 2) * span;
+        this.camera.position.z = BoxRenderer.BOX_DEPTH / 2 + span / (2 * Math.tan(horizFov / 2));
 
         this.renderer.setSize(w, h);
     }
