@@ -10,13 +10,26 @@ html, body {
 
 #coming-soon {
     box-sizing: border-box;
-    width: 320px;
-    height: 214px;
-
     background-color: white;
     border: 10px solid #81d8d0;
 
-    font-size: 30px;
     text-align: center;
-    line-height: 194px;
+}
+
+@media (min-width: 600px) {
+    #coming-soon {
+        width: 320px;
+        height: 214px;
+        font-size: 30px;
+        line-height: 194px;
+    }
+}
+
+@media (max-width: 600px) {
+    #coming-soon {
+        width: 170px;
+        height: 133px;
+        font-size: 20px;
+        line-height: 113px;
+    }
 }

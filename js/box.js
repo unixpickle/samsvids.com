@@ -13,6 +13,24 @@ class BoxPresenter {
         this.rearBox = new BoxRenderer(this.container, false);
         this.container.appendChild(this.clipContainer);
         this.frontBox = new BoxRenderer(this.container, true);
+
+        this.currentTime = 0;
+    }
+
+    animate() {
+        let start = null;
+        const f = (t) => {
+            if (start === null) {
+                start = t;
+            }
+            const curTime = (t - start) / 1000;
+            this.render(curTime);
+            if (curTime < BoxPresenter.TOTAL_TIME) {
+                requestAnimationFrame(f);
+            }
+        };
+        this.render(0);
+        requestAnimationFrame(f);
     }
 
     // Update the size of the presenter to contain the
@@ -23,15 +41,16 @@ class BoxPresenter {
 
         this.container.style.width = Math.ceil(width) + 'px';
         this.container.style.height = Math.ceil(height) + 'px';
-
-        this.clipContainer.style.top = Math.ceil(height * 0.4) + 'px';
         this.clipContainer.style.left = Math.round(width / 2 - this.element.offsetWidth / 2) + 'px';
 
         this.rearBox.resize();
         this.frontBox.resize();
+
+        this.render(this.currentTime);
     }
 
     render(t) {
+        this.currentTime = t;
         this.rearBox.render(t);
         this.frontBox.render(t);
         this._updateClip(t);
@@ -75,6 +94,10 @@ class BoxPresenter {
 
     static get ANIMATE_Y_TIME() {
         return 1.0;
+    }
+
+    static get TOTAL_TIME() {
+        return BoxRenderer.ANIMATE_DROP_TIME;
     }
 }
 
@@ -135,17 +158,19 @@ class BoxRenderer {
         const w = this.container.offsetWidth;
         const h = this.container.offsetHeight;
 
+        const virtualH = h + w * BoxRenderer.TOP_VIEW_OFFSET;
         const horizFov = 50 * Math.PI / 180;
-        const verticalFov = 2 * Math.atan(h / w * Math.tan(horizFov / 2));
+        const verticalFov = 2 * Math.atan(virtualH / w * Math.tan(horizFov / 2));
         this.camera = new THREE.PerspectiveCamera(verticalFov * 180 / Math.PI,
-            w / h, 0.1, 1000);
+            w / virtualH, 0.1, 1000);
 
         // We want to make it so that the box just barely fits
         // into the canvas.
         const span = BoxRenderer.BOX_WIDTH + BoxRenderer.SIDE_FLAP_SIZE * 2 +
             BoxRenderer.SIDE_SLACK;
         this.camera.position.z = BoxRenderer.BOX_DEPTH / 2 + span / (2 * Math.tan(horizFov / 2));
-        this.camera.setViewOffset(w, h, 0, w * BoxRenderer.TOP_VIEW_OFFSET, w, h);
+        this.camera.setViewOffset(w, virtualH,
+            0, w * BoxRenderer.TOP_VIEW_OFFSET, w, h);
 
         this.renderer.setSize(w, h);
     }
@@ -335,7 +360,7 @@ class BoxRenderer {
     }
 
     static get TOP_VIEW_OFFSET() {
-        return 0.2;
+        return 0.4;
     }
 
     static get BOX_WIDTH() {

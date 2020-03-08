@@ -13,19 +13,17 @@
 
             const pres = new BoxPresenter(cs);
             document.body.appendChild(pres.container);
-            pres.resize();
-            const halfWidth = Math.round((pres.container.offsetWidth / 2));
-            pres.container.style.left = 'calc(50% - ' + halfWidth + 'px)';
 
-            let t = 0;
-            pres.render(t);
-            setInterval(() => {
-                pres.render(t);
-                t += 1 / 24;
-                if (t > 3) {
-                    t = 0;
-                }
-            }, 1000/24);
+            handleResize = () => {
+                pres.resize();
+
+                const halfWidth = Math.round((pres.container.offsetWidth / 2));
+                pres.container.style.left = 'calc(50% - ' + halfWidth + 'px)';
+            };
+            window.addEventListener('resize', handleResize);
+            handleResize();
+
+            pres.animate();
         </script>
     </body>
 </html>
