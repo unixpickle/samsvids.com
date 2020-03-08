@@ -1,3 +1,83 @@
+class BoxPresenter {
+    constructor(element) {
+        this.element = element;
+        this.clipContainer = document.createElement('div');
+        this.clipContainer.className = 'box-presenter-clip';
+        this.clipContainer.style.overflow = 'hidden';
+        this.clipContainer.style.position = 'absolute';
+        this.clipContainer.appendChild(this.element);
+
+        this.container = document.createElement('div');
+        this.container.className = 'box-presenter';
+
+        this.rearBox = new BoxRenderer(this.container, false);
+        this.container.appendChild(this.clipContainer);
+        this.frontBox = new BoxRenderer(this.container, true);
+    }
+
+    // Update the size of the presenter to contain the
+    // presented element.
+    resize() {
+        const width = BoxPresenter.WIDTH_RATIO * this.element.offsetWidth;
+        const height = BoxPresenter.HEIGHT_RATIO * width;
+
+        this.container.style.width = Math.ceil(width) + 'px';
+        this.container.style.height = Math.ceil(height) + 'px';
+
+        this.clipContainer.style.top = Math.ceil(height * 0.4) + 'px';
+        this.clipContainer.style.left = Math.round(width / 2 - this.element.offsetWidth / 2) + 'px';
+
+        this.rearBox.resize();
+        this.frontBox.resize();
+    }
+
+    render(t) {
+        this.rearBox.render(t);
+        this.frontBox.render(t);
+        this._updateClip(t);
+    }
+
+    _updateClip(t) {
+        const height = this.container.offsetHeight;
+        let frac = Math.max(0, Math.min(1, (t - BoxPresenter.ANIMATE_Y_START) /
+            BoxPresenter.ANIMATE_Y_TIME));
+
+        // Two-sided easing.
+        frac = (Math.sin((frac * 2 - 1) * Math.PI / 2) + 1) / 2;
+
+        const y = height * ((1 - frac) * BoxPresenter.ANIMATE_INIT_Y +
+            frac * BoxPresenter.ANIMATE_FINAL_Y);
+
+        const maxY = this.frontBox.maxY();
+        this.clipContainer.style.top = Math.round(y) + 'px';
+        this.clipContainer.style.height = Math.floor(maxY - y) + 'px';
+    }
+
+    static get WIDTH_RATIO() {
+        return 1.8;
+    }
+
+    static get HEIGHT_RATIO() {
+        return 1.3;
+    }
+
+    static get ANIMATE_INIT_Y() {
+        return 0.4;
+    }
+
+    static get ANIMATE_FINAL_Y() {
+        return 0.1;
+    }
+
+    static get ANIMATE_Y_START() {
+        return 1.4;
+    }
+
+    static get ANIMATE_Y_TIME() {
+        return 1.0;
+    }
+}
+
 class BoxRenderer {
     constructor(container, isFront) {
         this.container = container;
