@@ -50,7 +50,7 @@ class BoxPresenter {
 
         const maxY = this.frontBox.maxY();
         this.clipContainer.style.top = Math.round(y) + 'px';
-        this.clipContainer.style.height = Math.floor(maxY - y) + 'px';
+        this.clipContainer.style.height = Math.max(0, Math.floor(maxY - y)) + 'px';
     }
 
     static get WIDTH_RATIO() {
@@ -66,7 +66,7 @@ class BoxPresenter {
     }
 
     static get ANIMATE_FINAL_Y() {
-        return 0.1;
+        return 0.05;
     }
 
     static get ANIMATE_Y_START() {
@@ -145,6 +145,7 @@ class BoxRenderer {
         const span = BoxRenderer.BOX_WIDTH + BoxRenderer.SIDE_FLAP_SIZE * 2 +
             BoxRenderer.SIDE_SLACK;
         this.camera.position.z = BoxRenderer.BOX_DEPTH / 2 + span / (2 * Math.tan(horizFov / 2));
+        this.camera.setViewOffset(w, h, 0, h * BoxRenderer.TOP_VIEW_OFFSET, w, h);
 
         this.renderer.setSize(w, h);
     }
@@ -333,6 +334,10 @@ class BoxRenderer {
         return res;
     }
 
+    static get TOP_VIEW_OFFSET() {
+        return 0.2;
+    }
+
     static get BOX_WIDTH() {
         return 2.5;
     }
@@ -374,10 +379,10 @@ class BoxRenderer {
     }
 
     static get ANIMATE_DROP_TOP() {
-        return 1.0;
+        return 0.3;
     }
 
     static get ANIMATE_DROP_BOTTOM() {
-        return -1.0;
+        return -1.5;
     }
 }

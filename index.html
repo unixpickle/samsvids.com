@@ -18,6 +18,7 @@
             pres.container.style.left = 'calc(50% - ' + halfWidth + 'px)';
 
             let t = 0;
+            pres.render(t);
             setInterval(() => {
                 pres.render(t);
                 t += 1 / 24;
