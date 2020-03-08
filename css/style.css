@@ -28,8 +28,8 @@ html, body {
 @media (max-width: 600px) {
     #coming-soon {
         width: 170px;
-        height: 133px;
+        height: 113px;
         font-size: 20px;
-        line-height: 113px;
+        line-height: 93px;
     }
 }
