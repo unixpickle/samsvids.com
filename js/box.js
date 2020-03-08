@@ -3,12 +3,29 @@ class BoxAnimation {
         this.container = container;
         this.scene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer();
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.soft = true;
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.geometry = this._setupGeometry()
-        this.material = new THREE.MeshBasicMaterial({ color: 0xdeb900 });
+        this.material = new THREE.MeshLambertMaterial({ color: 0xdeb900 });
         this.material.side = THREE.DoubleSide;
         this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.mesh.castShadow = true;
+        this.mesh.receiveShadow = true;
         this.scene.add(this.mesh);
         this.camera = null;
+
+        const ambient = new THREE.AmbientLight(0x909090);
+        this.scene.add(ambient);
+
+        this.light = new THREE.DirectionalLight(0xffffff, (0xff - 0x90) / 0xff);
+        this.light.position.set(0, 10, 10);
+        this.light.target.position.set(0, 0, 0);
+        this.light.castShadow = true;
+        this.light.shadow.mapSize.width = 1024;
+        this.light.shadow.mapSize.height = 1024;
+        this.light.shadow.bias = -5e-5;
+        this.scene.add(this.light);
 
         this.resize();
         this.container.appendChild(this.renderer.domElement);
@@ -22,19 +39,51 @@ class BoxAnimation {
         this.renderer.setSize(w, h);
     }
 
+    renderLoop() {
+        let t = 0;
+        setInterval(() => {
+            this.renderAtTime(t);
+            t += 1 / 24;
+            if (t > 3) {
+                t = 0;
+            }
+        }, 1000 / 24);
+    }
+
     renderAtTime(t) {
+        this._updatePosition(t);
         this._updateFlaps(t);
-        this.geometry.computeBoundingSphere();
+        this._updateNormals();
 
         this.renderer.render(this.scene, this.camera);
     }
 
+    _updatePosition(t) {
+        let fallFrac = Math.min(1, t / BoxAnimation.ANIMATE_DROP_TIME);
+        fallFrac = 1 - Math.pow(1 - fallFrac, 2);
+        const dropY = fallFrac * BoxAnimation.ANIMATE_DROP_BOTTOM +
+            (1 - fallFrac) * BoxAnimation.ANIMATE_DROP_TOP;
+        this.mesh.position.setY(dropY);
+    }
+
+    _flapThetas(t) {
+        let frontFrac = Math.min(1, t / BoxAnimation.ANIMATE_FRONT_TIME);
+        frontFrac = 1 - Math.pow(1 - frontFrac, 2);
+
+        let sideFrac = Math.max(0, Math.min(1, (t - BoxAnimation.ANIMATE_SIDE_START) /
+            BoxAnimation.ANIMATE_SIDE_TIME));
+        sideFrac = 1 - Math.pow(1 - sideFrac, 2);
+
+        const frontFlapTheta = 1.3 * Math.PI * frontFrac;
+        const backFlapTheta = 1.3 * Math.PI * frontFrac;
+        const leftFlapTheta = 1.3 * Math.PI * sideFrac;
+        const rightFlapTheta = 1.3 * Math.PI * sideFrac;
+        return { frontFlapTheta, backFlapTheta, leftFlapTheta, rightFlapTheta };
+    }
+
     _updateFlaps(t) {
-        // TODO: calculate this based on t.
-        const leftFlapTheta = 0;
-        const rightFlapTheta = 0;
-        const frontFlapTheta = 0;
-        const backFlapTheta = 0;
+        const { frontFlapTheta, backFlapTheta, leftFlapTheta, rightFlapTheta } =
+            this._flapThetas(t);
 
         const sideSize = BoxAnimation.SIDE_FLAP_SIZE;
         const frontSize = BoxAnimation.FRONT_FLAP_SIZE;
@@ -76,6 +125,22 @@ class BoxAnimation {
         this.geometry.vertices[15].x = -BoxAnimation.BOX_WIDTH / 2;
 
         this.geometry.verticesNeedUpdate = true;
+    }
+
+    _updateNormals() {
+        this.geometry.normalsNeedUpdate = true;
+        this.geometry.computeFaceNormals();
+
+        // Make sure the normals point in the correct
+        // direction to be lighted.
+        this.geometry.faces.forEach((f) => {
+            if (f.normal.z < 0) {
+                [f.a, f.b] = [f.b, f.a];
+            }
+        });
+        this.geometry.elementsNeedUpdate = true;
+        this.geometry.normalsNeedUpdate = true;
+        this.geometry.computeFaceNormals();
     }
 
     _setupGeometry() {
@@ -136,7 +201,7 @@ class BoxAnimation {
     }
 
     static get BOX_WIDTH() {
-        return 2;
+        return 2.5;
     }
 
     static get BOX_HEIGHT() {
@@ -144,7 +209,7 @@ class BoxAnimation {
     }
 
     static get BOX_DEPTH() {
-        return 2;
+        return 1.8;
     }
 
     static get SIDE_FLAP_SIZE() {
@@ -153,5 +218,29 @@ class BoxAnimation {
 
     static get FRONT_FLAP_SIZE() {
         return BoxAnimation.BOX_DEPTH * 0.4;
+    }
+
+    static get ANIMATE_FRONT_TIME() {
+        return 1.0;
+    }
+
+    static get ANIMATE_SIDE_START() {
+        return 0.6;
+    }
+
+    static get ANIMATE_SIDE_TIME() {
+        return 1.0;
+    }
+
+    static get ANIMATE_DROP_TIME() {
+        return 3.0;
+    }
+
+    static get ANIMATE_DROP_TOP() {
+        return 1.0;
+    }
+
+    static get ANIMATE_DROP_BOTTOM() {
+        return -1.5;
     }
 }
