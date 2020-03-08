@@ -139,7 +139,7 @@ class BoxRenderer {
             this.light.castShadow = true;
             this.light.shadow.mapSize.width = 1024;
             this.light.shadow.mapSize.height = 1024;
-            this.light.shadow.bias = -5e-5;
+            this.light.shadow.bias = -1e-4;
         }
 
         this.scene.add(this.light);
