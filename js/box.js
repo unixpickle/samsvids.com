@@ -1,17 +1,27 @@
-class BoxAnimation {
-    constructor(container) {
+class BoxRenderer {
+    constructor(container, isFront) {
         this.container = container;
+        this.isFront = isFront;
+
         this.scene = new THREE.Scene();
-        this.renderer = new THREE.WebGLRenderer();
-        this.renderer.shadowMap.enabled = true;
-        this.renderer.shadowMap.soft = true;
-        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        this.renderer = new THREE.WebGLRenderer({ alpha: true });
+
+        if (this.isFront) {
+            this.renderer.shadowMap.enabled = true;
+            this.renderer.shadowMap.soft = true;
+            this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        }
+
         this.geometry = this._setupGeometry()
         this.material = new THREE.MeshLambertMaterial({ color: 0xdeb900 });
         this.material.side = THREE.DoubleSide;
         this.mesh = new THREE.Mesh(this.geometry, this.material);
-        this.mesh.castShadow = true;
-        this.mesh.receiveShadow = true;
+
+        if (this.isFront) {
+            this.mesh.castShadow = true;
+            this.mesh.receiveShadow = true;
+        }
+
         this.scene.add(this.mesh);
         this.camera = null;
 
@@ -21,36 +31,47 @@ class BoxAnimation {
         this.light = new THREE.DirectionalLight(0xffffff, (0xff - 0x90) / 0xff);
         this.light.position.set(0, 10, 10);
         this.light.target.position.set(0, 0, 0);
-        this.light.castShadow = true;
-        this.light.shadow.mapSize.width = 1024;
-        this.light.shadow.mapSize.height = 1024;
-        this.light.shadow.bias = -5e-5;
+
+        if (this.isFront) {
+            this.light.castShadow = true;
+            this.light.shadow.mapSize.width = 1024;
+            this.light.shadow.mapSize.height = 1024;
+            this.light.shadow.bias = -5e-5;
+        }
+
         this.scene.add(this.light);
 
         this.resize();
+
+        this.renderer.domElement.style.position = 'absolute';
+        this.renderer.domElement.style.top = '0';
+        this.renderer.domElement.style.left = '0';
         this.container.appendChild(this.renderer.domElement);
     }
 
+    // Update the size of the renderer to match the
+    // container.
     resize() {
         const w = this.container.offsetWidth;
         const h = this.container.offsetHeight;
-        this.camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 1000);
-        this.camera.position.z = 4;
+
+        const horizFov = 50 * Math.PI / 180;
+        const verticalFov = 2 * Math.atan(h / w * Math.tan(horizFov / 2));
+        this.camera = new THREE.PerspectiveCamera(verticalFov * 180 / Math.PI,
+            w / h, 0.1, 1000);
+
+        // We want to make it so that the box just barely fits
+        // into the canvas.
+        const span = BoxRenderer.BOX_WIDTH + BoxRenderer.SIDE_FLAP_SIZE * 2 +
+            BoxRenderer.SIDE_SLACK;
+        this.camera.position.z = BoxRenderer.BOX_DEPTH / 2 + 2 * Math.tan(horizFov / 2) * span;
+
         this.renderer.setSize(w, h);
     }
 
-    renderLoop() {
-        let t = 0;
-        setInterval(() => {
-            this.renderAtTime(t);
-            t += 1 / 24;
-            if (t > 3) {
-                t = 0;
-            }
-        }, 1000 / 24);
-    }
-
-    renderAtTime(t) {
+    // Render the part of the box at the given time in the
+    // animation.
+    render(t) {
         this._updatePosition(t);
         this._updateFlaps(t);
         this._updateNormals();
@@ -58,20 +79,38 @@ class BoxAnimation {
         this.renderer.render(this.scene, this.camera);
     }
 
+    // Get the 2D y value of the lowest vertex of the box,
+    // relative to the top-left corner of the container.
+    maxY() {
+        const height = this.container.offsetHeight;
+        let maxY = 0;
+        this.geometry.faces.forEach((f) => {
+            [f.a, f.b, f.c].forEach((vIdx) => {
+                const proj = this.geometry.vertices[vIdx].clone();
+                proj.add(this.mesh.position);
+                proj.project(this.camera);
+
+                const y = height / 2 - (proj.y * height / 2);
+                maxY = Math.max(maxY, y);
+            });
+        });
+        return maxY
+    }
+
     _updatePosition(t) {
-        let fallFrac = Math.min(1, t / BoxAnimation.ANIMATE_DROP_TIME);
+        let fallFrac = Math.min(1, t / BoxRenderer.ANIMATE_DROP_TIME);
         fallFrac = 1 - Math.pow(1 - fallFrac, 2);
-        const dropY = fallFrac * BoxAnimation.ANIMATE_DROP_BOTTOM +
-            (1 - fallFrac) * BoxAnimation.ANIMATE_DROP_TOP;
+        const dropY = fallFrac * BoxRenderer.ANIMATE_DROP_BOTTOM +
+            (1 - fallFrac) * BoxRenderer.ANIMATE_DROP_TOP;
         this.mesh.position.setY(dropY);
     }
 
     _flapThetas(t) {
-        let frontFrac = Math.min(1, t / BoxAnimation.ANIMATE_FRONT_TIME);
+        let frontFrac = Math.min(1, t / BoxRenderer.ANIMATE_FRONT_TIME);
         frontFrac = 1 - Math.pow(1 - frontFrac, 2);
 
-        let sideFrac = Math.max(0, Math.min(1, (t - BoxAnimation.ANIMATE_SIDE_START) /
-            BoxAnimation.ANIMATE_SIDE_TIME));
+        let sideFrac = Math.max(0, Math.min(1, (t - BoxRenderer.ANIMATE_SIDE_START) /
+            BoxRenderer.ANIMATE_SIDE_TIME));
         sideFrac = 1 - Math.pow(1 - sideFrac, 2);
 
         const frontFlapTheta = 1.3 * Math.PI * frontFrac;
@@ -85,44 +124,44 @@ class BoxAnimation {
         const { frontFlapTheta, backFlapTheta, leftFlapTheta, rightFlapTheta } =
             this._flapThetas(t);
 
-        const sideSize = BoxAnimation.SIDE_FLAP_SIZE;
-        const frontSize = BoxAnimation.FRONT_FLAP_SIZE;
+        const sideSize = BoxRenderer.SIDE_FLAP_SIZE;
+        const frontSize = BoxRenderer.FRONT_FLAP_SIZE;
 
         // Left flap.
-        this.geometry.vertices[8].x = -BoxAnimation.BOX_WIDTH / 2 +
+        this.geometry.vertices[8].x = -BoxRenderer.BOX_WIDTH / 2 +
             Math.cos(leftFlapTheta) * sideSize;
-        this.geometry.vertices[8].y = BoxAnimation.BOX_HEIGHT / 2 +
+        this.geometry.vertices[8].y = BoxRenderer.BOX_HEIGHT / 2 +
             Math.sin(leftFlapTheta) * sideSize;
-        this.geometry.vertices[8].z = BoxAnimation.BOX_DEPTH / 2;
+        this.geometry.vertices[8].z = BoxRenderer.BOX_DEPTH / 2;
         this.geometry.vertices[9].copy(this.geometry.vertices[8]);
-        this.geometry.vertices[9].z = -BoxAnimation.BOX_DEPTH / 2;
+        this.geometry.vertices[9].z = -BoxRenderer.BOX_DEPTH / 2;
 
         // Right flap.
-        this.geometry.vertices[10].x = BoxAnimation.BOX_WIDTH / 2 -
+        this.geometry.vertices[10].x = BoxRenderer.BOX_WIDTH / 2 -
             Math.cos(rightFlapTheta) * sideSize;
-        this.geometry.vertices[10].y = BoxAnimation.BOX_HEIGHT / 2 +
+        this.geometry.vertices[10].y = BoxRenderer.BOX_HEIGHT / 2 +
             Math.sin(rightFlapTheta) * sideSize;
-        this.geometry.vertices[10].z = BoxAnimation.BOX_DEPTH / 2;
+        this.geometry.vertices[10].z = BoxRenderer.BOX_DEPTH / 2;
         this.geometry.vertices[11].copy(this.geometry.vertices[10]);
-        this.geometry.vertices[11].z = -BoxAnimation.BOX_DEPTH / 2;
+        this.geometry.vertices[11].z = -BoxRenderer.BOX_DEPTH / 2;
 
         // Front flap.
-        this.geometry.vertices[12].y = BoxAnimation.BOX_HEIGHT / 2 +
+        this.geometry.vertices[12].y = BoxRenderer.BOX_HEIGHT / 2 +
             Math.sin(frontFlapTheta) * frontSize;
-        this.geometry.vertices[12].z = BoxAnimation.BOX_DEPTH / 2 -
+        this.geometry.vertices[12].z = BoxRenderer.BOX_DEPTH / 2 -
             Math.cos(frontFlapTheta) * frontSize;
-        this.geometry.vertices[12].x = BoxAnimation.BOX_WIDTH / 2;
+        this.geometry.vertices[12].x = BoxRenderer.BOX_WIDTH / 2;
         this.geometry.vertices[13].copy(this.geometry.vertices[12]);
-        this.geometry.vertices[13].x = -BoxAnimation.BOX_WIDTH / 2;
+        this.geometry.vertices[13].x = -BoxRenderer.BOX_WIDTH / 2;
 
         // Back flap.
-        this.geometry.vertices[14].y = BoxAnimation.BOX_HEIGHT / 2 +
+        this.geometry.vertices[14].y = BoxRenderer.BOX_HEIGHT / 2 +
             Math.sin(backFlapTheta) * frontSize;
-        this.geometry.vertices[14].z = -BoxAnimation.BOX_DEPTH / 2 +
+        this.geometry.vertices[14].z = -BoxRenderer.BOX_DEPTH / 2 +
             Math.cos(backFlapTheta) * frontSize;
-        this.geometry.vertices[14].x = BoxAnimation.BOX_WIDTH / 2;
+        this.geometry.vertices[14].x = BoxRenderer.BOX_WIDTH / 2;
         this.geometry.vertices[15].copy(this.geometry.vertices[14]);
-        this.geometry.vertices[15].x = -BoxAnimation.BOX_WIDTH / 2;
+        this.geometry.vertices[15].x = -BoxRenderer.BOX_WIDTH / 2;
 
         this.geometry.verticesNeedUpdate = true;
     }
@@ -134,10 +173,14 @@ class BoxAnimation {
         // Make sure the normals point in the correct
         // direction to be lighted.
         this.geometry.faces.forEach((f) => {
-            if (f.normal.z < 0) {
+            const corner = this.geometry.vertices[f.a].clone();
+            corner.applyMatrix4(this.mesh.matrixWorld);
+            const diff = corner.sub(this.camera.position);
+            if (f.normal.dot(diff) > 0) {
                 [f.a, f.b] = [f.b, f.a];
             }
         });
+
         this.geometry.elementsNeedUpdate = true;
         this.geometry.normalsNeedUpdate = true;
         this.geometry.computeFaceNormals();
@@ -147,32 +190,37 @@ class BoxAnimation {
         const res = new THREE.Geometry();
 
         // Vertices for box sides.
-        [-BoxAnimation.BOX_WIDTH, BoxAnimation.BOX_WIDTH].forEach((x) => {
-            [-BoxAnimation.BOX_HEIGHT, BoxAnimation.BOX_HEIGHT].forEach((y) => {
-                [-BoxAnimation.BOX_DEPTH, BoxAnimation.BOX_DEPTH].forEach((z) => {
+        [-BoxRenderer.BOX_WIDTH, BoxRenderer.BOX_WIDTH].forEach((x) => {
+            [-BoxRenderer.BOX_HEIGHT, BoxRenderer.BOX_HEIGHT].forEach((y) => {
+                [-BoxRenderer.BOX_DEPTH, BoxRenderer.BOX_DEPTH].forEach((z) => {
                     res.vertices.push(new THREE.Vector3(x / 2, y / 2, z / 2));
                 });
             });
         });
 
         // Faces for box sides.
-        res.faces.push(
-            // Back face.
-            new THREE.Face3(6, 2, 4),
-            new THREE.Face3(2, 0, 4),
-            // Front face.
-            new THREE.Face3(1, 5, 3),
-            new THREE.Face3(3, 5, 7),
-            // Left face.
-            new THREE.Face3(0, 2, 1),
-            new THREE.Face3(1, 2, 3),
-            // Right face.
-            new THREE.Face3(4, 5, 6),
-            new THREE.Face3(5, 6, 7),
-            // Bottom face.
-            new THREE.Face3(0, 1, 4),
-            new THREE.Face3(4, 5, 1),
-        )
+        if (this.isFront) {
+            res.faces.push(
+                // Front face.
+                new THREE.Face3(1, 5, 3),
+                new THREE.Face3(3, 5, 7),
+            );
+        } else {
+            res.faces.push(
+                // Back face.
+                new THREE.Face3(6, 2, 4),
+                new THREE.Face3(2, 0, 4),
+                // Left face.
+                new THREE.Face3(0, 2, 1),
+                new THREE.Face3(1, 2, 3),
+                // Right face.
+                new THREE.Face3(4, 5, 6),
+                new THREE.Face3(5, 6, 7),
+                // Bottom face.
+                new THREE.Face3(0, 1, 4),
+                new THREE.Face3(4, 5, 1),
+            );
+        }
 
         // Vertices for tops of flaps.
         // These are updated by updateFlaps().
@@ -181,20 +229,25 @@ class BoxAnimation {
         }
 
         // Faces for flaps.
-        res.faces.push(
-            // Left flap.
-            new THREE.Face3(2, 3, 8),
-            new THREE.Face3(8, 9, 2),
-            // Right flap.
-            new THREE.Face3(6, 7, 10),
-            new THREE.Face3(10, 11, 6),
-            // Front flap.
-            new THREE.Face3(3, 7, 12),
-            new THREE.Face3(12, 13, 3),
-            // Back flap.
-            new THREE.Face3(2, 6, 14),
-            new THREE.Face3(14, 15, 2),
-        );
+        if (this.isFront) {
+            res.faces.push(
+                // Front flap.
+                new THREE.Face3(3, 7, 12),
+                new THREE.Face3(12, 13, 3),
+            );
+        } else {
+            res.faces.push(
+                // Left flap.
+                new THREE.Face3(2, 3, 8),
+                new THREE.Face3(8, 9, 2),
+                // Right flap.
+                new THREE.Face3(6, 7, 10),
+                new THREE.Face3(10, 11, 6),
+                // Back flap.
+                new THREE.Face3(2, 6, 14),
+                new THREE.Face3(14, 15, 2),
+            );
+        }
 
         res.computeBoundingSphere();
         return res;
@@ -212,12 +265,16 @@ class BoxAnimation {
         return 1.8;
     }
 
+    static get SIDE_SLACK() {
+        return 0.3;
+    }
+
     static get SIDE_FLAP_SIZE() {
         return 0.5;
     }
 
     static get FRONT_FLAP_SIZE() {
-        return BoxAnimation.BOX_DEPTH * 0.4;
+        return BoxRenderer.BOX_DEPTH * 0.4;
     }
 
     static get ANIMATE_FRONT_TIME() {
@@ -225,7 +282,7 @@ class BoxAnimation {
     }
 
     static get ANIMATE_SIDE_START() {
-        return 0.6;
+        return 0.8;
     }
 
     static get ANIMATE_SIDE_TIME() {
@@ -241,6 +298,6 @@ class BoxAnimation {
     }
 
     static get ANIMATE_DROP_BOTTOM() {
-        return -1.5;
+        return -1.0;
     }
 }

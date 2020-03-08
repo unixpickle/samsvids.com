@@ -8,7 +8,17 @@
     <body>
         <div id="box-animation"></div>
         <script>
-            new BoxAnimation(document.getElementById('box-animation')).renderLoop();
+            const r = new BoxRenderer(document.getElementById('box-animation'));
+            const f = new BoxRenderer(document.getElementById('box-animation'), true);
+            let t = 0;
+            setInterval(() => {
+                r.render(t);
+                f.render(t);
+                t += 1 / 24;
+                if (t > 3) {
+                    t = 0;
+                }
+            }, 1000/24);
         </script>
     </body>
 </html>
