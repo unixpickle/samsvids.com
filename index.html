@@ -8,9 +8,12 @@
         <script src="js/box.js"></script>
     </head>
     <body>
-        <div id="coming-soon">Coming Soon!</div>
+        <a class="envelope" href="https://www.youtube.com/channel/UCUGp2Pe4XIfvcNb2gMXQp3w">
+            <label>All Videos</label>
+        </a>
+        <iframe id="latest-video" width="560" height="315" src="https://www.youtube.com/embed/IM44uPtmpwY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         <script>
-            const cs = document.getElementById('coming-soon');
+            const cs = document.getElementById('latest-video');
             cs.parentNode.removeChild(cs);
 
             const pres = new BoxPresenter(cs);

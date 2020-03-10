@@ -1,35 +1,116 @@
 html, body {
     margin: 0;
     background-color: #ffdddd;
+    text-align: center;
+    font-family: sans-serif;
 }
 
 .box-presenter {
     position: absolute;
-    top: 20px;
+    top: 100px;
 }
 
-#coming-soon {
-    box-sizing: border-box;
-    background-color: white;
+#latest-video {
     border: 10px solid #81d8d0;
-
-    text-align: center;
+    background-color: white;
 }
 
-@media (min-width: 600px) {
-    #coming-soon {
+@media (min-width: 900px) {
+    .box-presenter {
+        top: 120px;
+    }
+
+    #latest-video {
+        width: 480px;
+        height: 320px;
+    }
+}
+
+@media (min-width: 600px) and (max-width: 900px) {
+    .box-presenter {
+        top: 100px;
+    }
+
+    #latest-video {
         width: 320px;
         height: 214px;
-        font-size: 30px;
-        line-height: 194px;
     }
 }
 
 @media (max-width: 600px) {
-    #coming-soon {
+    .box-presenter {
+        top: 90px;
+    }
+
+    #latest-video {
         width: 170px;
         height: 113px;
-        font-size: 20px;
-        line-height: 93px;
     }
+}
+
+a.envelope {
+    height: 60px;
+    display: inline-block;
+    position: relative;
+    margin-top: 10px;
+    padding: 0 0 0 60px;
+    cursor: pointer;
+}
+
+a.envelope label {
+    display: inline-block;
+    background-color: white;
+    padding: 0 10px;
+    margin-top: 7px;
+    height: 45px;
+    line-height: 45px;
+
+    transition: margin-left 0.5s;
+
+    font-size: 20px;
+    color: #555;
+
+    /* Needed for z-index. */
+    position: relative;
+
+    /* Don't take the curser. */
+    pointer-events: none;
+}
+
+a.envelope:hover label {
+    margin-left: 40px;
+}
+
+a.envelope label::after {
+    content: ' ';
+    display: inline-block;
+    position: relative;
+    width: 30px;
+    height: 30px;
+    top: 10px;
+    background-image: url('../svg/arrow.svg');
+}
+
+a.envelope::before {
+    content: ' ';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 90px;
+    height: 60px;
+    background-image: url('../svg/envelope_bottom.svg');
+    background-size: 100% 100%;
+}
+
+a.envelope::after {
+    content: ' ';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 90px;
+    height: 60px;
+    background-image: url('../svg/envelope_top.svg');
+    background-size: 100% 100%;
 }
