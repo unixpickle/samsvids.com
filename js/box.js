@@ -27,10 +27,17 @@ class BoxPresenter {
             this.render(curTime);
             if (curTime < BoxPresenter.TOTAL_TIME) {
                 requestAnimationFrame(f);
+            } else {
+                this._completeAnimation();
             }
         };
         this.render(0);
         requestAnimationFrame(f);
+    }
+
+    _completeAnimation() {
+        this.clipContainer.parentNode.removeChild(this.clipContainer);
+        this.container.appendChild(this.clipContainer);
     }
 
     // Update the size of the presenter to contain the
