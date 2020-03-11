@@ -1,3 +1,3 @@
 # Info
 
-This is a website for a youtube channel.
+This is the code for [samsvids.com](https://samsvids.com).
