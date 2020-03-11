@@ -36,8 +36,11 @@ class BoxPresenter {
     }
 
     _completeAnimation() {
-        this.clipContainer.parentNode.removeChild(this.clipContainer);
-        this.container.appendChild(this.clipContainer);
+        // Move the front box, but not the video, since
+        // the video will reload if we remove and re-add
+        // it (causing a twitch).
+        this.frontBox.parentNode.removeChild(this.frontBox);
+        this.container.insertBefore(this.frontBox, this.clipContainer);
     }
 
     // Update the size of the presenter to contain the
