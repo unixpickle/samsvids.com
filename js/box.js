@@ -36,11 +36,7 @@ class BoxPresenter {
     }
 
     _completeAnimation() {
-        // Move the front box, but not the video, since
-        // the video will reload if we remove and re-add
-        // it (causing a twitch).
-        this.frontBox.parentNode.removeChild(this.frontBox);
-        this.container.insertBefore(this.frontBox, this.clipContainer);
+        this.frontBox.putBefore(this.clipContainer);
     }
 
     // Update the size of the presenter to contain the
@@ -160,6 +156,10 @@ class BoxRenderer {
         this.renderer.domElement.style.top = '0';
         this.renderer.domElement.style.left = '0';
         this.container.appendChild(this.renderer.domElement);
+    }
+
+    putBefore(element) {
+        this.container.insertBefore(this.renderer.domElement, element);
     }
 
     // Update the size of the renderer to match the
