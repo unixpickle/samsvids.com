@@ -58,7 +58,7 @@ class VideoList {
 
         const date = document.createElement('label');
         date.className = 'date';
-        const jsDate = new Date(item.pubDate);
+        const jsDate = new Date(Date.parse(item.pubDate.replace(' ', 'T').replace('/', '-') + 'Z'));
         const months = [
             'January',
             'February',
