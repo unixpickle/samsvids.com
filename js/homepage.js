@@ -14,3 +14,5 @@ handleResize();
 window.addEventListener('resize', handleResize);
 
 pres.animate();
+
+document.body.className = '';

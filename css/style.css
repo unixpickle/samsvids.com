@@ -5,6 +5,10 @@ html, body {
     font-family: sans-serif;
 }
 
+body.loading > * {
+    visibility: hidden;
+}
+
 .box-presenter {
     position: absolute;
     top: 100px;
@@ -88,7 +92,8 @@ a.envelope label::after {
     width: 30px;
     height: 30px;
     top: 10px;
-    background-image: url('../svg/arrow.svg');
+    /* Raw file at svg/arrow.svg */
+    background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiID8+CjxzdmcgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOCAxOCI+CiAgICA8cGF0aCBkPSJNNCw4IGgxMyBtLTUsLTUgbDUsNSBsLTUsNSIgc3Ryb2tlPSIjNTU1IiBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjEuNSIgLz4KPC9zdmc+Cg==');
 }
 
 a.envelope::before {
@@ -99,7 +104,8 @@ a.envelope::before {
     left: 0;
     width: 90px;
     height: 60px;
-    background-image: url('../svg/envelope_bottom.svg');
+    /* Raw file at svg/envelope_bottom.svg */
+    background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiID8+CjxzdmcgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+CiAgICA8cGF0aCBkPSJNMCwwIGgyNSB2MjAgaC0yNSB6IiBmaWxsPSIjZGRkIiAvPgogICAgPHBhdGggZD0iTTAsMSBoMjUgbTAsMyBoLTI1IG0wLDMgaDI1IG0wLDMgaC0yNSBtMCwzIGgyNSBtMCwzIGgtMjUgbTAsMyBoMjUiCiAgICAgICAgICBzdHJva2U9IiNlZWUiIGZpbGw9Im5vbmUiIC8+CiAgICA8cGF0aCBkPSJNMjUsMCBsNSwzIHYxNCBsLTUsMyB6IE0yOC41LDEwIGExLDEgMCAxIDAgMCAwLjAwMDEgeiIgZmlsbD0iI2VmYWU2MSIgLz4KPC9zdmc+Cg==');
     background-size: 100% 100%;
 }
 
@@ -111,6 +117,7 @@ a.envelope::after {
     left: 0;
     width: 90px;
     height: 60px;
-    background-image: url('../svg/envelope_top.svg');
+    /* Raw file at svg/envelope_top.svg */
+    background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiID8+CjxzdmcgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCAyMCI+CiAgICA8cGF0aCBkPSJNMCwwIGgyNSBsLTUsMTAgbDUsMTAgaC0yNSB6IiBmaWxsPSIjZWZhZTYxIiAvPgogICAgPHBhdGggZD0iTTE4LDYgaDAuNSB2MyBsLTAuNSwxIGwwLjUsMSB2MyBoLTEgdi0zIGwwLjUsLTEgbC0wLjUsLTEgdi0zIHoiIGZpbGw9IiNkZGQiIC8+Cjwvc3ZnPgo=');
     background-size: 100% 100%;
 }
