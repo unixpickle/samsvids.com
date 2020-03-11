@@ -1,0 +1,136 @@
+html, body {
+    margin: 0;
+    background-color: #ffdddd;
+    text-align: center;
+    font-family: sans-serif;
+}
+
+#subscribe-link {
+    display: inline-block;
+    padding: 10px;
+    margin: 20px auto;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+#videos {
+    position: absolute;
+    margin-top: 10px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 640px) {
+    #videos {
+        width: calc(100% - 40px);
+        left: 20px;
+    }
+}
+
+@media (min-width: 640px) {
+    #videos {
+        width: 600px;
+        left: calc(50% - 300px);
+    }
+}
+
+#videos-error {
+    display: none;
+    color: red;
+    font-weight: bolder;
+    padding: 10px;
+}
+
+#video-list {
+    display: none;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.video-item {
+    display: block;
+    height: 100px;
+    width: 100%;
+}
+
+.video-item:hover {
+    background-color: #f0f0f0;
+}
+
+.video-item > a {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    color: #555;
+    text-decoration: none;
+}
+
+.video-item .thumbnail {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+
+.video-item label {
+    position: absolute;
+    left: 126px;
+    width: calc(100% - 136px);
+    text-align: left;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.video-item .title {
+    top: 15px;
+    max-height: 40px;
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-weight: bolder;
+}
+
+.video-item .date {
+    bottom: 15px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-style: oblique;
+}
+
+#videos-loader {
+    padding: 15px 0;
+    color: #555;
+    font-style: oblique;
+}
+
+#videos-loader label {
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.loader {
+    position: relative;
+    left: calc(50% - 15px);
+
+    background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiID8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMzAgMzAiPgogICAgPHBhdGggZD0iTTE1LDIgQTEzLDEzIDAgMSAxIDIsMTUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzY1YmNkNCIgc3Ryb2tlLXdpZHRoPSI0IiAvPgo8L3N2Zz4K');
+    background-size: 100% 100%;
+    width: 30px;
+    height: 30px;
+
+    animation-name: spin;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

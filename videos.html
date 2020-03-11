@@ -5,7 +5,24 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <link rel="stylesheet" type="text/css" href="css/videos.css">
     </head>
-    <body class="loading">
+    <body>
+        <div id="subscribe-link">
+            <script src="https://apis.google.com/js/platform.js"></script>
+            <div class="g-ytsubscribe" data-channelid="UCUGp2Pe4XIfvcNb2gMXQp3w" data-layout="full" data-count="default">
+                <div class="loader"></div>
+            </div>
+        </div>
+
+        <div id="videos">
+            <div id="videos-loader">
+                <label>Loading videos...</label>
+                <div class="loader"></div>
+            </div>
+            <div id="videos-error">
+                <label>Failed to load videos.</label>
+            </div>
+            <ol id="video-list"></ol>
+        </div>
 
         <script src="js/videos.js"></script>
     </body>
