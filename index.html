@@ -12,23 +12,6 @@
             <label>All Videos</label>
         </a>
         <iframe id="latest-video" width="560" height="315" src="https://www.youtube.com/embed/IM44uPtmpwY" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        <script>
-            const cs = document.getElementById('latest-video');
-            cs.parentNode.removeChild(cs);
-
-            const pres = new BoxPresenter(cs);
-            document.body.appendChild(pres.container);
-
-            handleResize = () => {
-                pres.resize();
-
-                const halfWidth = Math.round((pres.container.offsetWidth / 2));
-                pres.container.style.left = 'calc(50% - ' + halfWidth + 'px)';
-            };
-            window.addEventListener('resize', handleResize);
-            handleResize();
-
-            pres.animate();
-        </script>
+        <script src="js/homepage.js"></script>
     </body>
 </html>
