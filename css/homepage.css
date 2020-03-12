@@ -12,7 +12,7 @@ body.loading > * {
 }
 
 #latest-video {
-    border: 10px solid #81d8d0;
+    border: 10px solid #d982d9;
     background-color: white;
 }
 
@@ -25,6 +25,10 @@ body.loading > * {
         width: 480px;
         height: 320px;
     }
+
+    #latest-video {
+        border-width: 10px;
+    }
 }
 
 @media (min-width: 600px) and (max-width: 900px) {
@@ -35,6 +39,7 @@ body.loading > * {
     #latest-video {
         width: 320px;
         height: 214px;
+        border-width: 8px;
     }
 }
 
@@ -46,6 +51,7 @@ body.loading > * {
     #latest-video {
         width: 170px;
         height: 113px;
+        border-width: 5px;
     }
 }
 
