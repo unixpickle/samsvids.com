@@ -53,7 +53,7 @@ class VideoList {
 
         const title = document.createElement('label');
         title.className = 'title';
-        title.textContent = item.title;
+        title.textContent = item.title.replace('&amp;', '&');
         linkElement.appendChild(title);
 
         const date = document.createElement('label');
